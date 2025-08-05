@@ -25,3 +25,4 @@ Thumbs.db
 .git/
 .gitattributes
 .gitmodules
+.early.coverage
