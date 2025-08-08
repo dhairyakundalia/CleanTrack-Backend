@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Socket.IO Test</title>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+  <h1>Socket.IO Test Page</h1>
+
+  <input type="text" id="messageInput" placeholder="Type a message..." />
+  <button onclick="sendMessage()">Send to Server</button>
+
+  <h3>Server Response:</h3>
+  <pre id="serverMessage"></pre>
+
+  <script>
+    const socket = io("http://localhost:3030"); // Replace with your IP if needed (e.g. 10.0.2.2:3000)
+
+    socket.on("connect", () => {
+      console.log("Connected:", socket.id);
+    });
+
+    socket.on("messageFromServer", (data) => {
+      document.getElementById("serverMessage").innerText = data;
+    });
+
+    function sendMessage() {
+      const msg = document.getElementById("messageInput").value;
+      socket.emit("messageFromAndroid", { message: msg });
+    }
+  </script>
+</body>
+</html>
