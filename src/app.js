@@ -22,6 +22,11 @@ io.on("connection", (socket) => {
     console.log("📨 Received from Android:", data);
     socket.emit("messageFromServer", "Hello Android!");
   });
+  socket.on("locationUpdate", (data) => {
+    console.log("📨 Received from Android:", data);
+    socket.emit("messageFromServer", "Hello Android!");
+  });
+
   
   socket.emit("FromUser","Hello can you give me your live location!?");
   socket.on("disconnect", () => {
