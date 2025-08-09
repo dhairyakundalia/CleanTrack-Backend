@@ -18,17 +18,21 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("🟢 New client connected:", socket.id);
 
+  socket.on("join",(roomId,role)=>{
+      socket.join(roomId);
+      socket.to(roomId).emit("messageFromServer",`You joined as ${role}`);
+  })  
+
   socket.on("messageFromAndroid", (data) => {
     console.log("📨 Received from Android:", data);
     socket.emit("messageFromServer", "Hello Android!");
   });
   socket.on("locationUpdate", (data) => {
     console.log("📨 Received from Android:", data);
-    socket.emit("messageFromServer", "Hello Android!");
+    socket.to("Users").emit("TruckLocation",data);
+    socket.emit("messageFromServer", "Hello Truck");
   });
 
-  
-  socket.emit("FromUser","Hello can you give me your live location!?");
   socket.on("disconnect", () => {
     console.log("🔌 Client disconnected:", socket.id);
   });
