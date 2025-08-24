@@ -23,8 +23,9 @@ const logoutUser = async () => {
     return await supabase.auth.signOut();
 };
 
-const selectGeofences = async ({ geofences_id, user_id }) => {
-    geofences_id.forEach(async (element) => {
+const selectGeofences = async ({ geofences, user_id }) => {
+    const dataArray = [];
+    geofences.forEach(async (element) => {
         const { data, error } = await supabase
             .from("geofence_user")
             .insert([
@@ -33,10 +34,10 @@ const selectGeofences = async ({ geofences_id, user_id }) => {
                     user_id: user_id
                 }
             ])
+            if(error) return {error}
+            else dataArray.push(data);
     });
-
-    if (error) return new ApiError(404, error.message, error);
-    return res.status(200).json(data);
+    return {dataArray};
 };
 
 const geofenceSelected = async ({ user_id }) => {
@@ -44,10 +45,23 @@ const geofenceSelected = async ({ user_id }) => {
         .from("geofence_user")
         .select("*")
         .eq("user_id", user_id);
-    if (error) return new ApiError(404, error.message, error);
-    return res.status(200).json({
-        selected: data.length > 0
-    });
+    if(error)
+        return new ApiError(404, error.message, error);
+    else if(data.length > 0)
+        return {selected: true, data: data}
+    else 
+        return {selected: false, data: null}
 }
 
-export { createUser, loginUser, logoutUser, selectGeofences, geofenceSelected };
+const joinGeofences = async ({user_id, socket}) => {
+    const { selected, data } = await geofenceSelected({ user_id });
+    if(selected){
+        data.forEach(row => {
+            socket.join(row.geofence_id);
+        });
+    }
+}
+
+
+
+export { createUser, loginUser, logoutUser, selectGeofences, geofenceSelected, joinGeofences };

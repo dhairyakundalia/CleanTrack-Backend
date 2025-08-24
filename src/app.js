@@ -4,47 +4,61 @@ import truckRouter from "./routes/truck.routes.js";
 import path from "path";
 import http from "http";
 import { Server } from "socket.io";
-import { create } from "domain";
 import { createUser, loginUser, logoutUser } from "./models/user.model.js";
+import { truckSocketHandler } from "./controllers/truck.controller.js";
+import { ApiError } from "./utils/apiError.js";
+import { userSocketHandler } from "./controllers/user.controller.js";
+import { selectGeofences } from "./models/user.model.js";
+// import { create } from "domain";
 const app = express();
 
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
-  }
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
 });
 
 // Socket.IO logic
 io.on("connection", (socket) => {
-  console.log("🟢 New client connected:", socket.id);
+    const { role } = socket.handshake.query;
+    console.log("🟢 New client connected:", socket.id);
 
-  socket.on("join", (roomId, role) => {
-    socket.join(roomId);
-    socket.to(roomId).emit("messageFromServer", `You joined as ${role}`);
-  })
+    if (role === "truck")
+        truckSocketHandler(socket);
+    else if (role === "user")
+        userSocketHandler(socket);
 
-  socket.on("messageFromAndroid", (data) => {
-    console.log("📨 Received from Android:", data);
-    socket.emit("messageFromServer", "Hello Android!");
-  });
-  socket.on("locationUpdate", (data) => {
-    console.log("📨 Received from Android:", data);
-    socket.to("Users").emit("TruckLocation", data);
-    socket.emit("messageFromServer", "Hello Truck");
-  });
+    socket.on("join", (roomId, role) => {
+        socket.join(roomId);
+        socket.to(roomId).emit("messageFromServer", `You joined as ${role}`);
+    })
 
-  socket.on("disconnect", () => {
-    console.log("🔌 Client disconnected:", socket.id);
-  });
+    socket.on("messageFromAndroid", (data) => {
+        console.log("📨 Received from Android:", data);
+        socket.emit("messageFromServer", "Hello Android!");
+    });
+    socket.on("locationUpdate", (data) => {
+        console.log("📨 Received from Android:", data);
+        socket.to("Users").emit("TruckLocation", data);
+        socket.emit("messageFromServer", "Hello Truck");
+    });
+
+    socket.on("disconnect", () => {
+        console.log("🔌 Client disconnected:", socket.id);
+    });
 });
 
+const getIO = () => {
+    if (!io) return new ApiError(500, "Socket.IO not initialized");
+    return io;
+}
 
 // Middlewares
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || "*",
-  credentials: true
+    origin: process.env.CORS_ORIGIN || "*",
+    credentials: true
 }));
 
 app.use(express.json({ limit: "16kb" }));
@@ -59,23 +73,30 @@ app.set("views", path.join(path.resolve(), "src/views"));
 app.use("/api/truck", truckRouter);
 app.get("/api/signup", async (req, res) => {
     const { email, password, username } = req.body;
-    const {data, error} = await createUser({ email, password, username })
+    const { data, error } = await createUser({ email, password, username })
     if (error) return res.status(500).json({ error: error.message });
     return res.status(200).json(data);
 })
 app.get("/api/login", async (req, res) => {
     const { email, password } = req.body;
-    const {data, error} = await loginUser({ email, password });
+    const { data, error } = await loginUser({ email, password });
     if (error) return res.status(500).json({ error: error.message });
     return res.status(200).json(data);
 })
 app.get("/api/logout", async (req, res) => {
-    const {data, error} = await logoutUser();
+    const { data, error } = await logoutUser();
     if (error) return res.status(500).json({ error: error.message });
     return res.status(200).json(data);
 })
+
+app.post("/api/select-geofences", async (req, res) =>{
+    const { user_id, geofences } = req.body;
+    const { dataArray, error } = await selectGeofences({ user_id, geofences });
+    if (error) return res.status(500).json({ error: error.message });
+    return res.status(200).json(dataArray);
+})
 app.get("/test", (req, res) => {
-  res.render("test");
+    res.render("test");
 });
 
-export { server };
+export { server, getIO };
