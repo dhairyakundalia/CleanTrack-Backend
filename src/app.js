@@ -9,6 +9,7 @@ import { truckSocketHandler } from "./controllers/truck.controller.js";
 import { ApiError } from "./utils/apiError.js";
 import { userSocketHandler } from "./controllers/user.controller.js";
 import { selectGeofences } from "./models/user.model.js";
+import { count } from "console";
 // import { create } from "domain";
 const app = express();
 
@@ -71,17 +72,32 @@ app.set("views", path.join(path.resolve(), "src/views"));
 
 // Routes
 app.use("/api/truck", truckRouter);
-app.get("/api/signup", async (req, res) => {
+app.post("/api/signup", async (req, res) => {
+     console.log("signup request comes...")
     const { email, password, username } = req.body;
     const { data, error } = await createUser({ email, password, username })
+    // console.log(error);
     if (error) return res.status(500).json({ error: error.message });
-    return res.status(200).json(data);
+    //  console.log(data);
+    const user = data.user;
+    return res.status(200).json({
+        role: user.role,
+        email: user.email,
+        username: user.user_metadata?.username
+    });
 })
-app.get("/api/login", async (req, res) => {
+app.post("/api/login", async (req, res) => {
+    console.log("login request comes...")
     const { email, password } = req.body;
     const { data, error } = await loginUser({ email, password });
+    console.log(error);
+    console.log(data);
     if (error) return res.status(500).json({ error: error.message });
-    return res.status(200).json(data);
+     const user = data.user;
+    return res.status(200).json({
+        email: user.email,
+        username: user.user_metadata?.username
+    });
 })
 app.get("/api/logout", async (req, res) => {
     const { data, error } = await logoutUser();
