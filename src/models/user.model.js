@@ -10,24 +10,22 @@ const createUser = async ({ email, password, username }) => {
             },
         },
     })
-    if (error) return { error };
+    if (error) return { data, error };
     const { data: profileData, error: profileError } = await supabase
         .from("profile")
         .select(`
             user_id,
             role, 
-            username,
+            username
         `)
         .eq("user_id", data.user.id)
         .single();
-    if (profileError) return { profileError };
     return {
         data: {
             email: data.user.email,
-            username: profileData.username,
-            role: profileData.role,
-            user_id: profileData.user_id
-        }
+            ...profileData
+        },
+        error: profileError
     }
 };
 
@@ -36,24 +34,22 @@ const loginUser = async ({ email, password }) => {
         email,
         password,
     });
-    if (error) return { error };
+    if (error) return {data, error};
     const { data: profileData, error: profileError } = await supabase
         .from("profile")
         .select(`
             user_id,
             role, 
-            username,
+            username
         `)
         .eq("user_id", data.user.id)
         .single();
-    if (profileError) return { profileError };
     return {
         data: {
             email: data.user.email,
-            username: profileData.username,
-            role: profileData.role,
-            user_id: profileData.user_id
-        }
+            ...profileData
+        },
+        error: profileError
     }
 };
 
