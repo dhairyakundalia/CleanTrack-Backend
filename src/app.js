@@ -108,9 +108,9 @@ app.get("/api/logout", async (req, res) => {
 
 app.post("/api/select-geofences", async (req, res) =>{
     const { user_id, geofences } = req.body;
-    const { dataArray, error } = await selectGeofences({ user_id, geofences });
-    if (error) return res.status(500).json({ error: error.message });
-    return res.status(200).json(dataArray);
+    const { errorArray } = await selectGeofences({ user_id, geofences });
+    if (errorArray.length > 0) return res.status(500).json({ error: errorArray });
+    return res.status(200).json("Successful");
 })
 app.get("/test", (req, res) => {
     res.render("test");

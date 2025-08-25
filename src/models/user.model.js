@@ -34,7 +34,7 @@ const loginUser = async ({ email, password }) => {
         email,
         password,
     });
-    if (error) return {data, error};
+    if (error) return { data, error };
     const { data: profileData, error: profileError } = await supabase
         .from("profile")
         .select(`
@@ -58,20 +58,23 @@ const logoutUser = async () => {
 };
 
 const selectGeofences = async ({ geofences, user_id }) => {
-    const dataArray = [];
-    geofences.forEach(async (element) => {
-        const { data, error } = await supabase
+    const errorArray = [];
+    // console.log(geofences);
+    const promises = geofences.map(async (element) => {
+        const { error } = await supabase
             .from("geofence_user")
-            .insert([
-                {
-                    geofence_id: element,
-                    user_id: user_id
-                }
-            ])
-        if (error) return { error }
-        else dataArray.push(data);
+            .insert([{
+                geofence_id: element,
+                user_id: user_id
+            }]);
+
+        if (error) {
+            errorArray.push(error);
+        }
     });
-    return { dataArray };
+    await Promise.all(promises);
+    // console.log(errorArray);
+    return { errorArray };
 };
 
 const geofenceSelected = async ({ user_id }) => {
