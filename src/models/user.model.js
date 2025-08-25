@@ -17,7 +17,7 @@ const createUser = async ({ email, password, username }) => {
             user_id,
             role, 
             username,
-            auth_users:auth.users(email)
+            email: users(email)
         `)
         .eq("user_id", data.user.id)
         .single();
@@ -35,7 +35,7 @@ const loginUser = async ({ email, password }) => {
             user_id,
             role, 
             username,
-            auth_users: auth.users(email)
+            email: users(email)
         `)
         .eq("user_id", data.user.id)
         .single();
