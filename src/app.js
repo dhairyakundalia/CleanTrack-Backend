@@ -79,11 +79,11 @@ app.post("/api/signup", async (req, res) => {
     // console.log(error);
     if (error) return res.status(500).json({ error: error.message });
     //  console.log(data);
-    const user = data.user;
     return res.status(200).json({
-        role: user.role,
-        email: user.email,
-        username: user.user_metadata?.username
+        email: data.email,
+        username: data.username,
+        role: data.role,
+        user_id: data.user_id
     });
 })
 app.post("/api/login", async (req, res) => {
@@ -93,10 +93,11 @@ app.post("/api/login", async (req, res) => {
     console.log(error);
     console.log(data);
     if (error) return res.status(500).json({ error: error.message });
-     const user = data.user;
     return res.status(200).json({
-        email: user.email,
-        username: user.user_metadata?.username
+        email: data.email,
+        username: data.username,
+        role: data.role,
+        user_id: data.user_id
     });
 })
 app.get("/api/logout", async (req, res) => {

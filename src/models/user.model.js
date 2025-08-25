@@ -1,7 +1,7 @@
 import { supabase } from "../db/db.js";
 
 const createUser = async ({ email, password, username }) => {
-    return await supabase.auth.signUp({
+    const {data, error} = await supabase.auth.signUp({
         email: email,
         password: password,
         options: {
@@ -10,13 +10,35 @@ const createUser = async ({ email, password, username }) => {
             },
         },
     })
+    if(error) return {error};
+    return await supabase
+        .from("profile")
+        .select(`
+            user_id,
+            role, 
+            username,
+            email: auth.users(email)
+        `)
+        .eq("user_id", data.user.id)
+        .single();
 };
 
 const loginUser = async ({ email, password }) => {
-    return await supabase.auth.signInWithPassword({
+    const { data, error} = await supabase.auth.signInWithPassword({
         email,
         password,
     });
+    if(error) return {error};
+    return await supabase
+        .from("profile")
+        .select(`
+            user_id,
+            role, 
+            username,
+            email: auth.users(email)
+        `)
+        .eq("user_id", data.user.id)
+        .single();
 };
 
 const logoutUser = async () => {
