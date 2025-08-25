@@ -2,7 +2,7 @@ import { supabase } from "../db/db.js";
 import { ApiError } from "../utils/apiError.js";
 import { getIO } from "../app.js";
 
-const truckGeofences = {}
+
 async function insertLocation({truck_id, lat, lng}) {
   if (truck_id && lat && lng) {
     const { data, error } = await supabase
@@ -64,9 +64,9 @@ const getLocation = async ({truck_id}) => {
 	return res.status(200).json(data);
 }
 
-const broadcastLocation = ({truck_id, lat, lng}) => {
+const broadcastLocation = ({truck_id, lat, lng, currentGeofences}) => {
     const io = getIO();
-    truckGeofences[truck_id].forEach(geofence => {
+    currentGeofences.map(geofence => {
         io.to(`geofence:${geofence}`).emit("TruckLocation", {truck_id: truck_id, lat: lat, lng: lng});
     });
 }
