@@ -80,7 +80,7 @@ app.post("/api/signup", async (req, res) => {
     if (error) return res.status(500).json({ error: error.message });
     //  console.log(data);
     return res.status(200).json({
-        email: data.email,
+        email: data.auth_users,
         username: data.username,
         role: data.role,
         user_id: data.user_id
@@ -94,7 +94,7 @@ app.post("/api/login", async (req, res) => {
     console.log(data);
     if (error) return res.status(500).json({ error: error.message });
     return res.status(200).json({
-        email: data.email,
+        email: data.auth_users,
         username: data.username,
         role: data.role,
         user_id: data.user_id

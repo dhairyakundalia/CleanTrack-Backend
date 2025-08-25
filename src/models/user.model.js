@@ -1,7 +1,7 @@
 import { supabase } from "../db/db.js";
 
 const createUser = async ({ email, password, username }) => {
-    const {data, error} = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
         email: email,
         password: password,
         options: {
@@ -10,32 +10,32 @@ const createUser = async ({ email, password, username }) => {
             },
         },
     })
-    if(error) return {error};
+    if (error) return { error };
     return await supabase
         .from("profile")
         .select(`
             user_id,
             role, 
             username,
-            email: auth.users(email)
+            auth_users:auth.users(email)
         `)
         .eq("user_id", data.user.id)
         .single();
 };
 
 const loginUser = async ({ email, password }) => {
-    const { data, error} = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
     });
-    if(error) return {error};
+    if (error) return { error };
     return await supabase
         .from("profile")
         .select(`
             user_id,
             role, 
             username,
-            email: auth.users(email)
+            auth_users: auth.users(email)
         `)
         .eq("user_id", data.user.id)
         .single();
@@ -56,10 +56,10 @@ const selectGeofences = async ({ geofences, user_id }) => {
                     user_id: user_id
                 }
             ])
-            if(error) return {error}
-            else dataArray.push(data);
+        if (error) return { error }
+        else dataArray.push(data);
     });
-    return {dataArray};
+    return { dataArray };
 };
 
 const geofenceSelected = async ({ user_id }) => {
@@ -67,17 +67,17 @@ const geofenceSelected = async ({ user_id }) => {
         .from("geofence_user")
         .select("*")
         .eq("user_id", user_id);
-    if(error)
+    if (error)
         return new ApiError(404, error.message, error);
-    else if(data.length > 0)
-        return {selected: true, data: data}
-    else 
-        return {selected: false, data: null}
+    else if (data.length > 0)
+        return { selected: true, data: data }
+    else
+        return { selected: false, data: null }
 }
 
-const joinGeofences = async ({user_id, socket}) => {
+const joinGeofences = async ({ user_id, socket }) => {
     const { selected, data } = await geofenceSelected({ user_id });
-    if(selected){
+    if (selected) {
         data.forEach(row => {
             socket.join(row.geofence_id);
         });
