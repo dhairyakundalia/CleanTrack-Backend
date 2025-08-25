@@ -11,16 +11,24 @@ const createUser = async ({ email, password, username }) => {
         },
     })
     if (error) return { error };
-    return await supabase
+    const { data: profileData, error: profileError } = await supabase
         .from("profile")
         .select(`
             user_id,
             role, 
             username,
-            email: users(email)
         `)
         .eq("user_id", data.user.id)
         .single();
+    if (profileError) return { profileError };
+    return {
+        data: {
+            email: data.user.email,
+            username: profileData.username,
+            role: profileData.role,
+            user_id: profileData.user_id
+        }
+    }
 };
 
 const loginUser = async ({ email, password }) => {
@@ -29,16 +37,24 @@ const loginUser = async ({ email, password }) => {
         password,
     });
     if (error) return { error };
-    return await supabase
+    const { data: profileData, error: profileError } = await supabase
         .from("profile")
         .select(`
             user_id,
             role, 
             username,
-            email: users(email)
         `)
         .eq("user_id", data.user.id)
         .single();
+    if (profileError) return { profileError };
+    return {
+        data: {
+            email: data.user.email,
+            username: profileData.username,
+            role: profileData.role,
+            user_id: profileData.user_id
+        }
+    }
 };
 
 const logoutUser = async () => {
