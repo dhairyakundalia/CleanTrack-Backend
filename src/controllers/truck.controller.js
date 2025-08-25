@@ -37,12 +37,12 @@ const exitedGeofence = async (req, res) => {
 }
 
 const truckSocketHandler = (socket) => {
-    socket.on("updateGeofences", ({ newGeofences, truck_id, lat, lng }) => {
-        TruckModel.handleGeofenceUpdates({ socket, truck_id, newGeofences, lat, lng });
-    })
+    // socket.on("updateGeofences", ({ newGeofences, truck_id, lat, lng }) => {
+    //     TruckModel.handleGeofenceUpdates({ socket, truck_id, newGeofences, lat, lng });
+    // })
 
-    socket.on("updateLocation", ({truck_id, lat, lng}) => {
-        TruckModel.broadcastLocation({truck_id, lat, lng});
+    socket.on("updateLocation", ({truck_id, lat, lng, currentGeofences}) => {
+        TruckModel.broadcastLocation({truck_id, lat, lng, currentGeofences });
     })
 
     socket.on("disconnect", () => {
