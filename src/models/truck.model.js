@@ -66,7 +66,9 @@ const getLocation = async ({truck_id}) => {
 
 const broadcastLocation = ({truck_id, lat, lng, currentGeofences}) => {
     const io = getIO();
-    currentGeofences.map(geofence => {
+    // console.log(currentGeofences)
+    currentGeofences.forEach(geofence => {
+        // io.emit("TruckLocation", "Hi!");
         io.to(`geofence:${geofence}`).emit("TruckLocation", {truck_id: truck_id, lat: lat, lng: lng});
     });
 }

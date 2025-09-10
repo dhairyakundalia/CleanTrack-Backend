@@ -1,4 +1,5 @@
 import { supabase } from "../db/db.js";
+import { ApiError } from "../utils/apiError.js";
 
 const createUser = async ({ email, password, username }) => {
     const { data, error } = await supabase.auth.signUp({
@@ -92,9 +93,10 @@ const geofenceSelected = async ({ user_id }) => {
 
 const joinGeofences = async ({ user_id, socket }) => {
     const { selected, data } = await geofenceSelected({ user_id });
-    if (selected) {
+    if (selected) { 
         data.forEach(row => {
-            socket.join(row.geofence_id);
+            socket.join(`geofence:${row.geofence_id}`);
+            console.log(row.geofence_id);
         });
     }
 }

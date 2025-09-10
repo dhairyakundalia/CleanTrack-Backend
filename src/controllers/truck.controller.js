@@ -42,6 +42,8 @@ const truckSocketHandler = (socket) => {
     // })
 
     socket.on("updateLocation", ({truck_id, lat, lng, currentGeofences}) => {
+        console.log("location "+lat+" "+ lng +" "+ currentGeofences)
+        
         TruckModel.broadcastLocation({truck_id, lat, lng, currentGeofences });
     })
 

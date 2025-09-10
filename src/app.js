@@ -86,6 +86,7 @@ app.post("/api/signup", async (req, res) => {
         user_id: data.user_id
     });
 })
+
 app.post("/api/login", async (req, res) => {
     console.log("login request comes...")
     const { email, password } = req.body;
