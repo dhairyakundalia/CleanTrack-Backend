@@ -1,4 +1,5 @@
-import { supabase } from "../db/db";
+import { supabase } from "../db/db.js";
+import { ApiError } from "../utils/apiError.js";
 
 const insertGeofence = async ({geofence_id, lat, lng, radius}) => {
     const { data, error } = await supabase.from("geofence").insert([{
@@ -11,4 +12,14 @@ const insertGeofence = async ({geofence_id, lat, lng, radius}) => {
     return res.status(200).json(data);
 }
 
-export { insertGeofence }
+const getAllGeofences = async () => {
+    // console.log("Inside display geofences method...")
+    const {data, error} = await supabase.from("geofence")
+    .select("geofence_id, lat, lng, radius");
+    // console.log(data);
+    // console.log(error);
+    if(error) return {error};
+    return {data};
+}
+
+export { insertGeofence, getAllGeofences }

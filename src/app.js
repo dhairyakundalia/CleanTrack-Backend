@@ -10,6 +10,7 @@ import { ApiError } from "./utils/apiError.js";
 import { userSocketHandler } from "./controllers/user.controller.js";
 import { selectGeofences } from "./models/user.model.js";
 import { count } from "console";
+import { getAllGeofences } from "./models/geofence.model.js";
 // import { create } from "domain";
 const app = express();
 
@@ -116,5 +117,13 @@ app.post("/api/select-geofences", async (req, res) =>{
 app.get("/test", (req, res) => {
     res.render("test");
 });
+
+app.get("/api/get-all-geofences", async (req, res) => {
+    const {data, error} = await getAllGeofences();
+    // console.log("called endpoint...");
+    console.log(data);
+    if(error) return new ApiError(500, error.message, error);
+    return res.status(200).json(data);
+})
 
 export { server, getIO };
